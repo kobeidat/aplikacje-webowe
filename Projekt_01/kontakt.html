@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EcoTherm Smart Mug</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <style>
+      #map {
+        height: 400px;
+      }
+    </style>
+    <script src="OpenLayers.js"></script>
+  </head>
+  <body data-bs-theme="dark">
+    <nav
+      id="navbar"
+      class="navbar navbar-expand-lg bg-body-tertiary sticky-top"
+    >
+      <div class="container-fluid">
+        <a class="navbar-brand" href="index.html">EcoTherm</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" href="kontakt.html">Kontakt</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="zamow.html">Zamów</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <main class="container-fluid p-5">
+      <div class="row">
+        <div id="map" class="col-12 col-md-4 rounded-md"></div>
+        <div class="col-12 col-md-8 px-5">
+          <h3>Kontakt</h3>
+          <p>Adres: Kawiory 21, 30-055 Kraków</p>
+          <p>Nr telefonu: +48 111 222 333</p>
+          <p>Adres email: kontakt@ecotherm.pl</p>
+        </div>
+      </div>
+    </main>
+    <footer class="bg-dark text-white text-center py-4">
+      <p>&copy; 2024 EcoTherm sp. z.o.o. All Rights Reserved.</p>
+    </footer>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      let position = new OpenLayers.LonLat(
+        19.912603251629818,
+        50.06806521260843
+      ).transform(
+        new OpenLayers.Projection("EPSG:4326"),
+        new OpenLayers.Projection("EPSG:900913")
+      );
+
+      let map = new OpenLayers.Map("map");
+      map.addLayer(new OpenLayers.Layer.OSM());
+      map.setCenter(position, 17);
+
+      let markers = new OpenLayers.Layer.Markers("Markers");
+      markers.addMarker(new OpenLayers.Marker(position));
+
+      map.addLayer(markers);
+    </script>
+  </body>
+</html>
