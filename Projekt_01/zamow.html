@@ -127,6 +127,21 @@
       crossorigin="anonymous"
     ></script>
     <script>
+      var success = true;
+
+      function validate(element, condition, invalidMessage) {
+        if (condition) {
+          element.nextElementSibling.innerText = invalidMessage;
+          element.nextElementSibling.className = "invalid-feedback";
+          element.classList.add("is-invalid");
+          success = false;
+        } else {
+          element.nextElementSibling.innerText = "";
+          element.nextElementSibling.className = "valid-feedback";
+          element.classList.remove("is-invalid");
+        }
+      }
+
       document
         .querySelector("form")
         .addEventListener("submit", function (event) {
@@ -134,62 +149,28 @@
           event.stopPropagation();
 
           let name = document.getElementById("name");
-          let nameValidation = document.getElementById("name-validation");
           let city = document.getElementById("city");
-          let cityValidation = document.getElementById("city-validation");
           let address = document.getElementById("address");
-          let addressValidation = document.getElementById("address-validation");
           let postal = document.getElementById("postal");
-          let postalValidation = document.getElementById("postal-validation");
-          let success = true;
 
-          if (name.value.trim().length < 1) {
-            nameValidation.innerText = "Nie może być puste";
-            nameValidation.className = "invalid-feedback";
-            name.classList.add("is-invalid");
-            success = false;
-          } else {
-            nameValidation.innerText = "";
-            nameValidation.className = "valid-feedback";
-            name.classList.remove("is-invalid");
-          }
+          success = true;
 
-          if (city.value.trim().length < 1) {
-            cityValidation.innerText = "Nie może być puste";
-            cityValidation.className = "invalid-feedback";
-            city.classList.add("is-invalid");
-            success = false;
-          } else {
-            cityValidation.innerText = "";
-            cityValidation.className = "valid-feedback";
-            city.classList.remove("is-invalid");
-          }
-
-          if (address.value.trim().length < 1) {
-            addressValidation.innerText = "Nie może być puste";
-            addressValidation.className = "invalid-feedback";
-            address.classList.add("is-invalid");
-            success = false;
-          } else {
-            addressValidation.innerText = "";
-            addressValidation.className = "valid-feedback";
-            address.classList.remove("is-invalid");
-          }
-
-          if (!/^\d{2}-\d{3}$/.test(postal.value)) {
-            postalValidation.innerText = "Musi być w formacie dd-ddd";
-            postalValidation.className = "invalid-feedback";
-            postal.classList.add("is-invalid");
-            success = false;
-          } else {
-            postalValidation.innerText = "";
-            postalValidation.className = "valid-feedback";
-            postal.classList.remove("is-invalid");
-          }
+          validate(name, name.value.trim().length < 1, "Nie może być puste");
+          validate(city, city.value.trim().length < 1, "Nie może być puste");
+          validate(
+            address,
+            address.value.trim().length < 1,
+            "Nie może być puste"
+          );
+          validate(
+            postal,
+            !/^\d{2}-\d{3}$/.test(postal.value),
+            "Musi być w formacie dd-ddd"
+          );
 
           if (success) {
             document.getElementById("content").innerText =
-              "Dziękujemy za wysłanie zamówienia. Niedługo produkt się u Państwa zjawi.";
+              "Dziękujemy za złożenie zamówienia.";
           }
         });
     </script>
