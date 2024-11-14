@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lab 3 - Ćwiczenie 2</title>
+  </head>
+  <body>
+    <main>
+      <div>
+        <label for="min-length">Minmalna długość hasła</label>
+        <input type="number" id="min-length" />
+      </div>
+      <div>
+        <label for="max-length">Maksymalna długość hasła</label>
+        <input type="number" id="max-length" />
+      </div>
+      <div>
+        <label for="capital-letters"
+          >Czy hasło ma zawierać wielkie litery?</label
+        >
+        <input type="checkbox" id="capital-letters" />
+      </div>
+      <div>
+        <label for="special-chars"
+          >Czy hasło ma zawierać znaki specjalne?</label
+        >
+        <input type="checkbox" id="special-chars" />
+      </div>
+      <div>
+        <button id="generate-button">Wygeneruj hasło</button>
+      </div>
+    </main>
+    <script>
+      document
+        .getElementById("generate-button")
+        .addEventListener("click", (ev) => {
+          let minLength = parseInt(document.getElementById("min-length").value);
+          let maxLength = parseInt(document.getElementById("max-length").value);
+          let capitalLetters =
+            document.getElementById("capital-letters").checked;
+          let specialChars = document.getElementById("special-chars").checked;
+
+          let chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+
+          if (capitalLetters) {
+            chars += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+          }
+
+          if (specialChars) {
+            chars += "!@#$%^&*()-_=+[]{}|;:'\",.<>/?`~";
+          }
+
+          let password = "";
+
+          if (minLength <= maxLength) {
+            let length =
+              Math.floor(Math.random() * (maxLength - minLength)) + minLength;
+
+            for (let i = 0; i < length; i++) {
+              password += chars.charAt(
+                Math.floor(Math.random() * chars.length)
+              );
+            }
+          }
+
+          alert(`Wygenerowane hasło: ${password}`);
+        });
+    </script>
+  </body>
+</html>
