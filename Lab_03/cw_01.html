@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lab 3 - Ćwiczenie 1</title>
+    <style>
+      main {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .timer {
+        font-size: 48pt;
+        font-family: Arial, Helvetica, sans-serif;
+        border: 0.1em solid black;
+        padding: 0.5em;
+      }
+    </style>
+    <script>
+      const TIMEOUT = 1000;
+      var timer;
+      var time = 0;
+      var interval;
+
+      function updateTimer() {
+        let min = Math.floor(time / 60);
+        let sec = time % 60;
+        timer.innerText = "";
+        if (min > 0) {
+          timer.innerText += min + "min";
+        }
+        timer.innerText += " " + sec + "s";
+      }
+
+      function start() {
+        interval = setInterval(() => {
+          time++;
+          updateTimer();
+        }, TIMEOUT);
+      }
+
+      function stop() {
+        clearInterval(interval);
+      }
+
+      function reset() {
+        stop();
+        time = 0;
+        updateTimer();
+      }
+    </script>
+  </head>
+  <body>
+    <main>
+      <div class="timer">0s</div>
+      <script>
+        timer = document.querySelector(".timer");
+      </script>
+      <div>
+        <button onclick="start()">Start</button>
+        <button onclick="stop()">Stop</button>
+        <button onclick="reset()">Reset</button>
+      </div>
+    </main>
+  </body>
+</html>
