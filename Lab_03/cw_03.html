@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lab 3 - Ćwiczenie 3</title>
+    <style>
+      img {
+        width: 100px;
+        height: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <input type="text" id="search-field" />
+    <select id="sort-select">
+      <option value="orig">wg oryginalnej kolejności</option>
+      <option value="asc">rosnąco</option>
+      <option value="desc">malejąco</option>
+    </select>
+    <table border="3">
+      <thead>
+        <tr>
+          <th>Zdjęcie</th>
+          <th>Tytuł</th>
+          <th>Opis</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <script>
+      var searchQuery = "";
+      var sort = "orig";
+      var originalProducts = [];
+      var products = [];
+
+      function updateProducts() {
+        if (searchQuery.length > 0) {
+          products = structuredClone(originalProducts).filter(
+            (product) =>
+              product.title.includes(searchQuery) ||
+              product.description.includes(searchQuery)
+          );
+        } else {
+          products = structuredClone(originalProducts);
+        }
+
+        if (sort !== "orig") {
+          products.sort((a, b) => {
+            if (a.title == b.title) {
+              return 0;
+            } else if (a.title < b.title) {
+              return sort === "asc" ? -1 : 1;
+            } else {
+              return sort === "asc" ? 1 : -1;
+            }
+          });
+        }
+      }
+
+      let tbody = document.querySelector("tbody");
+
+      function updateTable() {
+        tbody.innerHTML = "";
+
+        products.forEach((product) => {
+          let tr = document.createElement("tr");
+
+          let imageTD = document.createElement("td");
+          let image = document.createElement("img");
+          image.src = product.images[0];
+          imageTD.appendChild(image);
+          tr.appendChild(imageTD);
+
+          let titleTD = document.createElement("td");
+          titleTD.innerText = product.title;
+          tr.appendChild(titleTD);
+
+          let descriptionTD = document.createElement("td");
+          descriptionTD.innerText = product.description;
+          tr.appendChild(descriptionTD);
+
+          tbody.appendChild(tr);
+        });
+      }
+
+      fetch("https://dummyjson.com/products")
+        .then((resp) => resp.json())
+        .then((data) => {
+          originalProducts = data.products;
+          updateProducts();
+          updateTable(products);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+
+      document
+        .getElementById("search-field")
+        .addEventListener("input", (ev) => {
+          searchQuery = ev.target.value.trim();
+          updateProducts();
+          updateTable();
+        });
+
+      document.getElementById("sort-select").addEventListener("input", (ev) => {
+        sort = ev.target.value;
+        updateProducts();
+        updateTable();
+      });
+    </script>
+  </body>
+</html>
