@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lab 3 - Ćwiczenie 4</title>
+    <style>
+      body {
+        margin: 0 auto;
+        padding: 0;
+      }
+      canvas {
+        width: 100vw;
+        height: 100vh;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas></canvas>
+    <script>
+      const scale = 2;
+      const dim = {
+        canvas: {
+          w: 640,
+          h: 400,
+        },
+        zombie: {
+          sw: 200,
+          sh: 312,
+          dw: 100,
+          dh: 156,
+        },
+        crosshair: {
+          x: -50,
+          y: -50,
+          w: 100,
+          h: 100,
+        },
+        heart: {
+          x: 10,
+          y: 10,
+          w: 60,
+          h: 60,
+        },
+        points: {
+          x: 1000,
+          y: 100,
+        },
+      };
+      const ground_height = 100;
+      const zombie_base_speed = 70;
+      const dt = 16;
+      var t = 0;
+      const zombie_creation_timeout = 500;
+      const zombie_ms_per_frame = 120;
+      const zombie_frames = 10;
+      const image_names_to_load = {
+        bg: "board-bg.jpg",
+        crosshair: "aim.png",
+        heart_empty: "empty_heart.png",
+        heart_full: "full_heart.png",
+        zombie: "walkingdead.png",
+      };
+      var images_loaded = 0;
+      const images_to_load = 5;
+      var images = {};
+      var zombies = {};
+      const max_hearts = 3;
+      var hearts = 3;
+      var points = 0;
+      const sad_music = new Audio("sad-music.mp3");
+      sad_music.loop = true;
+
+      class Zombie {
+        constructor(id) {
+          this.id = id;
+          this.speed = Math.random() * 2.5 + 0.5;
+          this.w = dim.zombie.dw;
+          this.h = dim.zombie.dh;
+          this.x = dim.canvas.w - this.w;
+          this.y = dim.canvas.h - this.h - Math.random() * ground_height;
+        }
+        update() {
+          this.x -= zombie_base_speed * (dt / 1000) * this.speed;
+        }
+        draw(ctx) {
+          let ms_per_frame = zombie_ms_per_frame / this.speed;
+          let frame = Math.floor(t / ms_per_frame) % zombie_frames;
+          ctx.drawImage(
+            images.zombie,
+            frame * dim.zombie.sw,
+            0,
+            dim.zombie.sw,
+            dim.zombie.sh,
+            this.x * scale,
+            this.y * scale,
+            this.w * scale,
+            this.h * scale
+          );
+        }
+        touches(px, py) {
+          let x0 = this.x;
+          let x1 = this.x + this.w;
+          let y0 = this.y;
+          let y1 = this.y + this.h;
+          return px >= x0 && px <= x1 && py >= y0 && py <= y1;
+        }
+        got_to_the_other_side() {
+          return this.x < -this.w;
+        }
+      }
+
+      function get_sorted_zombies(dir) {
+        return Object.values(zombies).sort((a, b) => {
+          if (a.y == b.y) {
+            return 0;
+          } else if (a.y < b.y) {
+            return dir;
+          } else {
+            return -dir;
+          }
+        });
+      }
+
+      function onload() {
+        let canvas = document.querySelector("canvas");
+        canvas.width = dim.canvas.w * scale;
+        canvas.height = dim.canvas.h * scale;
+        let ctx = canvas.getContext("2d");
+        ctx.font = "56pt sans-serif";
+        ctx.fillStyle = "white";
+
+        var mpos = { x: 0, y: 0 };
+        let next_zombie_id = 0;
+
+        t = 0;
+        setInterval(() => {
+          ctx.clearRect(0, 0, dim.canvas.w * scale, dim.canvas.h * scale);
+          ctx.drawImage(
+            images.bg,
+            0,
+            0,
+            dim.canvas.w * scale,
+            dim.canvas.h * scale
+          );
+
+          for (let zombie of get_sorted_zombies(-1)) {
+            zombie.update();
+            if (zombie.got_to_the_other_side()) {
+              delete zombies[zombie.id];
+              hearts--;
+              if (hearts <= 0) {
+                sad_music.play();
+                alert(`Game Over\nScore: ${points}\nTry again?`);
+                sad_music.pause();
+                zombies = {};
+                hearts = 3;
+                points = 0;
+              }
+            } else {
+              zombie.draw(ctx);
+            }
+          }
+
+          for (let i = 0; i < max_hearts; i++) {
+            let is_full_heart = i < hearts;
+            ctx.drawImage(
+              is_full_heart ? images.heart_full : images.heart_empty,
+              (dim.heart.x + dim.heart.w * i) * scale,
+              dim.heart.y * scale,
+              dim.heart.w * scale,
+              dim.heart.h * scale
+            );
+          }
+
+          ctx.fillText(
+            String(points).padStart(5, "0"),
+            dim.points.x,
+            dim.points.y
+          );
+
+          ctx.drawImage(
+            images.crosshair,
+            (mpos.x + dim.crosshair.x) * scale,
+            (mpos.y + dim.crosshair.y) * scale,
+            dim.crosshair.w * scale,
+            dim.crosshair.h * scale
+          );
+
+          t += dt;
+        }, dt);
+
+        setInterval(() => {
+          let id = next_zombie_id++;
+          zombies[id] = new Zombie(id);
+        }, zombie_creation_timeout);
+
+        canvas.addEventListener("mousemove", (ev) => {
+          let canvas_rect = canvas.getBoundingClientRect();
+          mpos.x =
+            ((ev.clientX - canvas_rect.left) / canvas_rect.width) *
+            dim.canvas.w;
+          mpos.y =
+            ((ev.clientY - canvas_rect.top) / canvas_rect.height) *
+            dim.canvas.h;
+        });
+
+        canvas.addEventListener("click", (ev) => {
+          let canvas_rect = canvas.getBoundingClientRect();
+          mpos.x =
+            ((ev.clientX - canvas_rect.left) / canvas_rect.width) *
+            dim.canvas.w;
+          mpos.y =
+            ((ev.clientY - canvas_rect.top) / canvas_rect.height) *
+            dim.canvas.h;
+
+          let hit = false;
+          for (let zombie of get_sorted_zombies(1)) {
+            if (zombie.touches(mpos.x, mpos.y)) {
+              delete zombies[zombie.id];
+              hit = true;
+              break;
+            }
+          }
+          points += hit ? 20 : -5;
+          points = Math.max(points, 0);
+        });
+      }
+
+      for (let key in image_names_to_load) {
+        images[key] = new Image();
+        images[key].src = image_names_to_load[key];
+        images[key].onload = () => {
+          images_loaded++;
+          if (images_loaded == images_to_load) {
+            onload();
+          }
+        };
+      }
+    </script>
+  </body>
+</html>
