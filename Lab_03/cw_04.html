@@ -46,6 +46,26 @@
           x: 500,
           y: 50,
         },
+        popup: {
+          x: 170,
+          y: 50,
+          w: 300,
+          h: 300,
+        },
+        popup_text: {
+          x: 200,
+          y: 140,
+        },
+        popup_button: {
+          x: 200,
+          y: 230,
+          w: 240,
+          h: 90,
+        },
+        popup_button_text: {
+          x: 236,
+          y: 290,
+        },
       };
       const font_size = 40;
       const ground_height = 100;
@@ -144,66 +164,97 @@
             dim.canvas.h * scale
           );
 
-          for (let zombie of get_sorted_zombies(-1)) {
-            zombie.update();
-            if (zombie.got_to_the_other_side()) {
-              delete zombies[zombie.id];
-              hearts--;
-              if (hearts <= 0) {
-                sad_music.play();
-                alert(`Game Over\nScore: ${points}\nTry again?`);
-                sad_music.pause();
-                zombies = {};
-                hearts = 3;
-                points = 0;
+          if (hearts > 0) {
+            for (let zombie of get_sorted_zombies(-1)) {
+              zombie.update();
+              if (zombie.got_to_the_other_side()) {
+                delete zombies[zombie.id];
+                hearts--;
+                if (hearts <= 0) {
+                  sad_music.play();
+                }
+              } else {
+                zombie.draw(ctx);
               }
-            } else {
-              zombie.draw(ctx);
             }
-          }
 
-          for (let i = 0; i < max_hearts; i++) {
-            let is_full_heart = i < hearts;
+            for (let i = 0; i < max_hearts; i++) {
+              let is_full_heart = i < hearts;
+              ctx.drawImage(
+                is_full_heart ? images.heart_full : images.heart_empty,
+                (dim.heart.x + dim.heart.w * i) * scale,
+                dim.heart.y * scale,
+                dim.heart.w * scale,
+                dim.heart.h * scale
+              );
+            }
+
+            ctx.fillStyle = "white";
+            ctx.fillText(
+              String(points).padStart(5, "0"),
+              dim.points.x * scale,
+              dim.points.y * scale
+            );
+
             ctx.drawImage(
-              is_full_heart ? images.heart_full : images.heart_empty,
-              (dim.heart.x + dim.heart.w * i) * scale,
-              dim.heart.y * scale,
-              dim.heart.w * scale,
-              dim.heart.h * scale
+              images.crosshair,
+              (mpos.x + dim.crosshair.x) * scale,
+              (mpos.y + dim.crosshair.y) * scale,
+              dim.crosshair.w * scale,
+              dim.crosshair.h * scale
+            );
+          } else {
+            ctx.fillStyle = "white";
+            ctx.fillRect(
+              dim.popup.x * scale,
+              dim.popup.y * scale,
+              dim.popup.w * scale,
+              dim.popup.h * scale
+            );
+
+            ctx.fillStyle = "black";
+            ctx.fillText(
+              `Score: ${points}`,
+              dim.popup_text.x * scale,
+              dim.popup_text.y * scale
+            );
+
+            ctx.fillStyle = "black";
+            ctx.fillRect(
+              dim.popup_button.x * scale,
+              dim.popup_button.y * scale,
+              dim.popup_button.w * scale,
+              dim.popup_button.h * scale
+            );
+
+            ctx.fillStyle = "white";
+            ctx.fillText(
+              "Try Again",
+              dim.popup_button_text.x * scale,
+              dim.popup_button_text.y * scale
             );
           }
-
-          ctx.fillStyle = "white";
-          ctx.fillText(
-            String(points).padStart(5, "0"),
-            dim.points.x * scale,
-            dim.points.y * scale
-          );
-
-          ctx.drawImage(
-            images.crosshair,
-            (mpos.x + dim.crosshair.x) * scale,
-            (mpos.y + dim.crosshair.y) * scale,
-            dim.crosshair.w * scale,
-            dim.crosshair.h * scale
-          );
 
           t += dt;
         }, dt);
 
         setInterval(() => {
-          let id = next_zombie_id++;
-          zombies[id] = new Zombie(id);
+          if (hearts > 0) {
+            let id = next_zombie_id++;
+            zombies[id] = new Zombie(id);
+          }
         }, zombie_creation_timeout);
 
         canvas.addEventListener("mousemove", (ev) => {
-          let canvas_rect = canvas.getBoundingClientRect();
-          mpos.x =
-            ((ev.clientX - canvas_rect.left) / canvas_rect.width) *
-            dim.canvas.w;
-          mpos.y =
-            ((ev.clientY - canvas_rect.top) / canvas_rect.height) *
-            dim.canvas.h;
+          if (hearts > 0) {
+            let canvas_rect = canvas.getBoundingClientRect();
+            mpos.x =
+              ((ev.clientX - canvas_rect.left) / canvas_rect.width) *
+              dim.canvas.w;
+            mpos.y =
+              ((ev.clientY - canvas_rect.top) / canvas_rect.height) *
+              dim.canvas.h;
+          }
         });
 
         canvas.addEventListener("click", (ev) => {
@@ -215,16 +266,30 @@
             ((ev.clientY - canvas_rect.top) / canvas_rect.height) *
             dim.canvas.h;
 
-          let hit = false;
-          for (let zombie of get_sorted_zombies(1)) {
-            if (zombie.touches(mpos.x, mpos.y)) {
-              delete zombies[zombie.id];
-              hit = true;
-              break;
+          if (hearts > 0) {
+            let hit = false;
+            for (let zombie of get_sorted_zombies(1)) {
+              if (zombie.touches(mpos.x, mpos.y)) {
+                delete zombies[zombie.id];
+                hit = true;
+                break;
+              }
+            }
+            points += hit ? 20 : -5;
+            points = Math.max(points, 0);
+          } else {
+            if (
+              mpos.x >= dim.popup_button.x &&
+              mpos.x <= dim.popup_button.x + dim.popup_button.w &&
+              mpos.y >= dim.popup_button.y &&
+              mpos.y <= dim.popup_button.y + dim.popup_button.h
+            ) {
+              sad_music.pause();
+              hearts = 3;
+              points = 0;
+              zombies = {};
             }
           }
-          points += hit ? 20 : -5;
-          points = Math.max(points, 0);
         });
       }
 
