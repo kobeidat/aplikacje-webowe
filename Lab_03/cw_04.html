@@ -43,10 +43,11 @@
           h: 60,
         },
         points: {
-          x: 1000,
-          y: 100,
+          x: 500,
+          y: 50,
         },
       };
+      const font_size = 40;
       const ground_height = 100;
       const zombie_base_speed = 70;
       const dt = 16;
@@ -127,8 +128,7 @@
         canvas.width = dim.canvas.w * scale;
         canvas.height = dim.canvas.h * scale;
         let ctx = canvas.getContext("2d");
-        ctx.font = "56pt sans-serif";
-        ctx.fillStyle = "white";
+        ctx.font = `${font_size * scale}px sans-serif`;
 
         var mpos = { x: 0, y: 0 };
         let next_zombie_id = 0;
@@ -173,10 +173,11 @@
             );
           }
 
+          ctx.fillStyle = "white";
           ctx.fillText(
             String(points).padStart(5, "0"),
-            dim.points.x,
-            dim.points.y
+            dim.points.x * scale,
+            dim.points.y * scale
           );
 
           ctx.drawImage(
