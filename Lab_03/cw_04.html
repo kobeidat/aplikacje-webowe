@@ -96,8 +96,9 @@
         constructor(id) {
           this.id = id;
           this.speed = Math.random() * 2.5 + 0.5;
-          this.w = dim.zombie.dw;
-          this.h = dim.zombie.dh;
+          let zombie_scale = Math.random() * 0.5 + 0.75;
+          this.w = dim.zombie.dw * zombie_scale;
+          this.h = dim.zombie.dh * zombie_scale;
           this.x = dim.canvas.w - this.w;
           this.y = dim.canvas.h - this.h - Math.random() * ground_height;
         }
