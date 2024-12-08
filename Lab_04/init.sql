@@ -1,0 +1,42 @@
+-- Create databases
+CREATE DATABASE IF NOT EXISTS zad_01;
+CREATE DATABASE IF NOT EXISTS zad_02;
+CREATE DATABASE IF NOT EXISTS zad_03;
+
+-- Create users and assign them to databases
+CREATE USER IF NOT EXISTS 'zad_01'@'%' IDENTIFIED BY 'password';
+CREATE USER IF NOT EXISTS 'zad_02'@'%' IDENTIFIED BY 'password';
+CREATE USER IF NOT EXISTS 'zad_03'@'%' IDENTIFIED BY 'password';
+
+GRANT ALL PRIVILEGES ON zad_01.* TO 'zad_01'@'%';
+GRANT ALL PRIVILEGES ON zad_02.* TO 'zad_02'@'%';
+GRANT ALL PRIVILEGES ON zad_03.* TO 'zad_03'@'%';
+
+-- Flush privileges to apply changes
+FLUSH PRIVILEGES;
+
+USE zad_01;
+
+CREATE TABLE IF NOT EXISTS books (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  author VARCHAR(255) NOT NULL,
+  year INT NOT NULL
+);
+
+USE zad_02;
+
+CREATE TABLE IF NOT EXISTS orders (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  book_id INT NOT NULL,
+  quantity INT NOT NULL
+);
+
+USE zad_03;
+
+CREATE TABLE IF NOT EXISTS users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(255) NOT NULL,
+  password VARCHAR(255) NOT NULL
+);
