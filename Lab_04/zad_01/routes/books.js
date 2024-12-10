@@ -42,15 +42,15 @@ router.post("/", async function (req, res, next) {
       return res.status(400).send("Body must contain: name, author, year.");
     }
 
-    console.log(req.body);
-
     let book = await Book.create({
       name: req.body.name,
       author: req.body.author,
       year: Number.parseInt(req.body.year),
     });
 
-    return res.status(201).json(book);
+    return res.status(201).json({
+      id: book.id,
+    });
   } catch (error) {
     res.status(500).send("Unable to connect to the database: " + error);
   }
@@ -68,7 +68,7 @@ router.delete("/:id", async function (req, res, next) {
         .send("Book with id " + req.params.id + " was not found");
     }
 
-    book.destroy();
+    await book.destroy();
 
     return res.status(204).send("");
   } catch (error) {
