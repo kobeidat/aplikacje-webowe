@@ -18,29 +18,29 @@ services:
       retries: 10
     networks:
       - main
-  # zad_01:
-  #   build:
-  #     context: ./zad_01
-  #   ports:
-  #     - 3000:3000
-  #   restart: always
-  #   networks:
-  #     - main
-  #   environment:
-  #     NODE_ENV: development
-  #     DB_HOST: db
-  #     DB_PORT: 3306
-  #     DB_DATABASE: zad_01
-  #     DB_USER: zad_01
-  #     DB_PASSWORD: password
-  #     DB_DIALECT: mysql
-  #     SECRET_KEY: sekret123
-  #   depends_on:
-  #     db:
-  #       condition: service_healthy
-  #   volumes:
-  #     - ./zad_01:/usr/src/app
-  #     - /usr/src/app/node_modules
+  books:
+    build:
+      context: ./zad_01
+    ports:
+      - 3000:3000
+    restart: always
+    networks:
+      - main
+    environment:
+      NODE_ENV: development
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: zad_01
+      DB_USER: zad_01
+      DB_PASSWORD: password
+      DB_DIALECT: mysql
+      SECRET_KEY: sekret123
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./zad_01:/usr/src/app
+      - /usr/src/app/node_modules
   zad_02:
     build:
       context: ./zad_02
@@ -58,6 +58,7 @@ services:
       DB_PASSWORD: password
       DB_DIALECT: mysql
       SECRET_KEY: sekret123
+      BOOKS_API_ENDPOINT: http://books:3000/api/books
     depends_on:
       db:
         condition: service_healthy

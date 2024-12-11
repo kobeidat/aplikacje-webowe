@@ -1,6 +1,7 @@
 var express = require("express");
 var router = express.Router();
 const { sequelize, Order } = require("../db");
+const { BOOKS_API_ENDPOINT } = process.env;
 
 router.get("/:user_id", async function (req, res, next) {
   try {
@@ -27,6 +28,25 @@ router.post("/", async function (req, res, next) {
 
     if (!req.body.book_id || !req.body.quantity) {
       return res.status(400).send("Body must contain: book_id, quantity.");
+    }
+
+    try {
+      let book_response = await fetch(
+        BOOKS_API_ENDPOINT + "/" + req.body.book_id,
+        {
+          headers: {
+            authorization: req.headers.authorization,
+          },
+        }
+      );
+
+      if (book_response.status == 404) {
+        return res.status(404).send("Book with that id does not exist.");
+      } else if (book_response.status != 200) {
+        return res.status(500).send("Error retrieving book");
+      }
+    } catch (ex) {
+      return res.status(500).send("Could not connect to book API");
     }
 
     let order = await Order.create({
@@ -61,6 +81,25 @@ router.patch("/:id", async function (req, res, next) {
 
     if (req.user.id != order.user_id) {
       return res.status(401).send("Unauthorized");
+    }
+
+    try {
+      let book_response = await fetch(
+        BOOKS_API_ENDPOINT + "/" + req.body.book_id,
+        {
+          headers: {
+            authorization: req.headers.authorization,
+          },
+        }
+      );
+
+      if (book_response.status == 404) {
+        return res.status(404).send("Book with that id does not exist.");
+      } else if (book_response.status != 200) {
+        return res.status(500).send("Error retrieving book");
+      }
+    } catch (ex) {
+      return res.status(500).send("Could not connect to book API");
     }
 
     order.book_id = req.body.book_id;

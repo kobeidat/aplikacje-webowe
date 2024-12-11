@@ -13,7 +13,7 @@ router.post("/login", async function (req, res, next) {
   if (!user) {
     return res
       .status(404)
-      .send("User with email " + req.params.email + " was not found");
+      .send("User with email " + req.body.email + " was not found");
   }
 
   if (!(await checkPassword(user, req.body.password))) {
